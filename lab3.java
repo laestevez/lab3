@@ -85,6 +85,7 @@ public class lab3 {
    public static void registersToString(){
       int counter = 0;
       String format = "%s%-20s";
+
       for (Map.Entry<String, Integer> entry : REGISTERS.entrySet()) {
          System.out.printf(format, "$", entry.getKey() + " = " + entry.getValue());
          //System.out.print("$" + entry.getKey() + " = " + entry.getValue() + "\t");
@@ -95,6 +96,7 @@ public class lab3 {
          }  
          counter++;
       }
+      
       System.out.println("\n");
    }
 
