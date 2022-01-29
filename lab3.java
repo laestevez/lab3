@@ -46,7 +46,10 @@ public class lab3 {
          System.out.println("command: s");
       }
       else if (firstChar == 'r') {
-         System.out.println("command: s");
+        for (Instruction instr : instrArr) {
+            //System.out.println(instr.toString());
+            executeInstruction(instr, pc, memoryArr);
+        }
       }
 
       else if (firstChar == 'm') {
@@ -84,7 +87,7 @@ public class lab3 {
       }
    }
 
-   public static void executeInstruction(Instruction instr, int PC, Integer[] MEMORY){
+   public static void executeInstruction(Instruction instr, int PC, int[] MEMORY){
       int operator;
       if(instr.getOpcode().equals("add")){
          operator = REGISTERS.get(instr.getRs()) + REGISTERS.get(instr.getRt());
@@ -120,11 +123,11 @@ public class lab3 {
       }
       else if(instr.getOpcode().equals("beq")){
          if(REGISTERS.get(instr.getRs()) == REGISTERS.get(instr.getRt()))
-            PC = PC + 4 + REGISTERS.get(instr.getAddr());
+            PC = PC + 4 + Integer.parseInt(instr.getAddr());
       }
       else if(instr.getOpcode().equals("bne")){
          if(REGISTERS.get(instr.getRs()) != REGISTERS.get(instr.getRt()))
-            PC = PC + 4 + REGISTERS.get(instr.getAddr());
+            PC = PC + 4 + Integer.parseInt(instr.getAddr());
       }
       else if(instr.getOpcode().equals("lw")){
          operator = MEMORY[REGISTERS.get(instr.getRs()) + Integer.parseInt(instr.getImm())];
@@ -148,7 +151,7 @@ public class lab3 {
 
    public static void registersToString(){
       int counter = 0;
-      String format = "%s%-20s";
+      String format = "%s%-10s";
 
       for (Map.Entry<String, Integer> entry : REGISTERS.entrySet()) {
          System.out.printf(format, "$", entry.getKey() + " = " + entry.getValue());
