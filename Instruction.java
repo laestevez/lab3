@@ -1,5 +1,4 @@
 
-
 public class  Instruction {
 
    private String opcode, rs, rt, rd, shamt, funct, imm, addr; 
