@@ -28,5 +28,6 @@ public class  Instruction {
    public String getFunct() { return this.funct; }
    public String getImm() { return this.imm; }
    public String getAddr() { return this.addr; }
-
 }
+
+
