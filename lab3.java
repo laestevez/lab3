@@ -20,6 +20,31 @@ public class lab3 {
    static final Map<String, String> J_INSTRS = new HashMap<String, String>();
    static final HashMap<String, Integer> REGISTERS = new LinkedHashMap<String, Integer>();
 
+   // TODO: separate everything into different files, getting kinda cluttered
+
+   public static void executeCommand(String command, int[] memoryArr, int pc, List<Instruction> instrArr) {
+      char firstChar = command.charAt(0);
+      if (firstChar == 'h') {
+         System.out.println("h = show help");
+         System.out.println("d = dump register state");
+         System.out.println("s = single step through the program (i.e. execute 1 instruction and stop");
+         System.out.println("s num = step through num instructions of the program");
+         System.out.println("r = run until the program ends");
+         System.out.println("m num1 num2 = display data memory from location num1 to num2");
+         System.out.println("c = clear all registers, memory, and the program counter to 0");
+         System.out.println("q = exit the program");
+      }
+      else if (firstChar == 'd') {
+         System.out.println("command: d");
+      }
+      else if (firstChar == 's') {
+         System.out.println("command: s");
+      }
+      else {
+         System.out.println("Invalid command");
+      }
+   }
+
    public static void executeInstruction(Instruction instr, int PC, Integer[] MEMORY){
       int operator;
       if(instr.getOpcode().equals("add")){
@@ -281,25 +306,30 @@ public class lab3 {
    }
 
    public static void main(String[] args) {
+      int[] memoryArr = new int[8192];
+      int pc = 0;
       List<Instruction> instrArr;
       String filename = args[0];
-      String outputFile = "outfile.txt";
+      Scanner scanner = new Scanner(System.in);
+      String command;
 
-      try {
-         File outFile = new File(outputFile);
-         File inputFile = new File(filename);
-         FileWriter writer = new FileWriter(outputFile);
-         HashMap<String, Integer> labels = getLabels(inputFile);
-         registersToString();
-         instrArr = createInstructions(inputFile, labels);
-         for (Instruction instr : instrArr) {
-            System.out.println(instr.toString());
+      File inputFile = new File(filename);
+      HashMap<String, Integer> labels = getLabels(inputFile);
+      instrArr = createInstructions(inputFile, labels);
+      // args: filename script
+      if (args.length == 1) {
+         // run interactive mode
+         while (true) {
+            System.out.print("mips> ");
+            command = scanner.next().trim();
+            if (command.equals("q"))
+               break;
+            executeCommand(command, memoryArr, pc, instrArr);
          }
-         writer.close();
       }
-      catch (IOException e) {
-         System.out.println("Error occured when writing");
-         e.printStackTrace();
+      else {
+         // run script mode
+         System.out.println("Running script mode");
       }
    }
 
