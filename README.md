@@ -1,2 +1,2 @@
 # lab3
-DONT COPY
+Testing
