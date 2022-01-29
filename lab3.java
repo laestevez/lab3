@@ -80,7 +80,6 @@ public class lab3 {
       else{
          System.out.println("invalid oppcode");
       }
-      
    }
 
    public static void registersToString(){
