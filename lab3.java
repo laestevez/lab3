@@ -65,17 +65,19 @@ public class lab3 {
                }
                System.out.println();
             }
-
             else
                System.out.println("\nNumber can't be greater than 8191\n");
          }
          else
-            System.out.println("\nERROR: m num1 num2\n");
-         
+            System.out.println("\nERROR: m num1 num2\n");         
       }
 
       else if (firstChar == 'c') {
-         System.out.println("command: s");
+        pc = 0;
+        for (Map.Entry<String, Integer> entry : REGISTERS.entrySet()) {
+            REGISTERS.put(entry.getKey() , 0);
+        }
+        Arrays.fill(memoryArr, 0);
       }
       else {
          System.out.println("Invalid command");
