@@ -40,6 +40,41 @@ public class lab3 {
       else if (firstChar == 's') {
          System.out.println("command: s");
       }
+      else if (command.equals("s num")) {
+         System.out.println("command: s");
+      }
+      else if (firstChar == 'r') {
+         System.out.println("command: s");
+      }
+
+      else if (firstChar == 'm') {
+         String[] splitStr = command.split(" ");
+         if(splitStr.length == 3){
+            int start = Integer.parseInt(splitStr[1]);
+            int end = Integer.parseInt(splitStr[2]);
+
+            if(start > end)
+               System.out.println("\nFirst Number can't be Greater than the Second Number\n");
+
+            else if(start < 8192 && end < 8192){
+               System.out.println();
+               for(int i = start; i <= end; i++){
+                  System.out.println("[" + i + "] = " + memoryArr[i]);
+               }
+               System.out.println();
+            }
+
+            else
+               System.out.println("\nNumber can't be greater than 8191\n");
+         }
+         else
+            System.out.println("\nERROR: m num1 num2\n");
+         
+      }
+
+      else if (firstChar == 'c') {
+         System.out.println("command: s");
+      }
       else {
          System.out.println("Invalid command");
       }
@@ -321,8 +356,8 @@ public class lab3 {
          // run interactive mode
          while (true) {
             System.out.print("mips> ");
-            command = scanner.next().trim();
-            if (command.equals("q"))
+            command = scanner.nextLine();
+            if (command.trim().equals("q"))
                break;
             executeCommand(command, memoryArr, pc, instrArr);
          }
