@@ -35,7 +35,9 @@ public class lab3 {
          System.out.println("q = exit the program");
       }
       else if (firstChar == 'd') {
-         System.out.println("command: d");
+         System.out.println();
+         System.out.println("pc = " + Integer.toString(pc));
+         registersToString();
       }
       else if (firstChar == 's') {
          System.out.println("command: s");
