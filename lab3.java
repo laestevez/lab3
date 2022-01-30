@@ -22,7 +22,7 @@ public class lab3 {
 
    // TODO: separate everything into different files, getting kinda cluttered
 
-   public static void executeCommand(String command, int[] memoryArr, int pc, List<Instruction> instrArr) {
+   public static int executeCommand(String command, int[] memoryArr, int pc, List<Instruction> instrArr) {
       char firstChar = command.charAt(0);
       if (firstChar == 'h') {
          System.out.println("h = show help");
@@ -46,10 +46,10 @@ public class lab3 {
          System.out.println("command: s");
       }
       else if (firstChar == 'r') {
-        for (Instruction instr : instrArr) {
-            //System.out.println(instr.toString());
-            executeInstruction(instr, pc, memoryArr);
-        }
+         for (pc = 0; pc < instrArr.size(); pc++) {
+            System.out.println(instrArr.get(pc));
+            pc = executeInstruction(instrArr.get(pc), pc, memoryArr);
+         }
       }
 
       else if (firstChar == 'm') {
@@ -81,13 +81,15 @@ public class lab3 {
             REGISTERS.put(entry.getKey() , 0);
         }
         Arrays.fill(memoryArr, 0);
+        System.out.println("\t\tSimulator reset");
       }
       else {
          System.out.println("Invalid command");
       }
+      return pc;
    }
 
-   public static void executeInstruction(Instruction instr, int PC, int[] MEMORY){
+   public static int executeInstruction(Instruction instr, int PC, int[] MEMORY){
       int operator;
       if(instr.getOpcode().equals("add")){
          operator = REGISTERS.get(instr.getRs()) + REGISTERS.get(instr.getRt());
@@ -112,41 +114,44 @@ public class lab3 {
       else if(instr.getOpcode().equals("slt")){
          if(REGISTERS.get(instr.getRs()) < REGISTERS.get(instr.getRt()))
             REGISTERS.put(instr.getRd(), 1);
-         REGISTERS.put(instr.getRd(), 0);
+         else
+            REGISTERS.put(instr.getRd(), 0);
       }
       else if(instr.getOpcode().equals("jr")){
-         PC = REGISTERS.get(instr.getRs());
+         PC = REGISTERS.get(instr.getRs()) - 1;
       }
       else if(instr.getOpcode().equals("addi")){
-         operator = REGISTERS.get(instr.getRs()) + Integer.parseInt(instr.getImm());
-         REGISTERS.put(instr.getRt(), operator);
+         operator = REGISTERS.get(instr.getRt()) + Integer.parseInt(instr.getImm());
+         REGISTERS.put(instr.getRs(), operator);
       }
       else if(instr.getOpcode().equals("beq")){
          if(REGISTERS.get(instr.getRs()) == REGISTERS.get(instr.getRt()))
-            PC = PC + 4 + Integer.parseInt(instr.getAddr());
+            PC = PC + Integer.parseInt(instr.getAddr());
       }
       else if(instr.getOpcode().equals("bne")){
-         if(REGISTERS.get(instr.getRs()) != REGISTERS.get(instr.getRt()))
-            PC = PC + 4 + Integer.parseInt(instr.getAddr());
+         if(REGISTERS.get(instr.getRs()) != REGISTERS.get(instr.getRt())){
+            PC = PC + Integer.parseInt(instr.getAddr());
+         }
       }
       else if(instr.getOpcode().equals("lw")){
-         operator = MEMORY[REGISTERS.get(instr.getRs()) + Integer.parseInt(instr.getImm())];
-         REGISTERS.put(instr.getRt(), operator);
+         operator = MEMORY[REGISTERS.get(instr.getRt()) + Integer.parseInt(instr.getImm())];
+         REGISTERS.put(instr.getRs(), operator);
       }
       else if(instr.getOpcode().equals("sw")){
-         operator = REGISTERS.get(instr.getRs()) + Integer.parseInt(instr.getImm());
-         MEMORY[operator] = REGISTERS.get(instr.getRt());
+         operator = REGISTERS.get(instr.getRt()) + Integer.parseInt(instr.getImm());
+         MEMORY[operator] = REGISTERS.get(instr.getRs());
       }
       else if(instr.getOpcode().equals("j")){
-         PC = Integer.parseInt(instr.getAddr());
+         PC = Integer.parseInt(instr.getAddr()) - 1;
       }
       else if(instr.getOpcode().equals("jal")){
-         REGISTERS.put("ra", PC + 4);
-         PC = Integer.parseInt(instr.getAddr());
+         REGISTERS.put("ra", PC + 1);
+         PC = Integer.parseInt(instr.getAddr()) - 1;
       }
       else{
          System.out.println("invalid oppcode");
       }
+      return PC;
    }
 
    public static void registersToString(){
@@ -188,7 +193,6 @@ public class lab3 {
       else {
          return null;
       }
-
       return instr;
    }
 
@@ -358,6 +362,7 @@ public class lab3 {
       File inputFile = new File(filename);
       HashMap<String, Integer> labels = getLabels(inputFile);
       instrArr = createInstructions(inputFile, labels);
+      //System.out.println(instrArr);
       // args: filename script
       if (args.length == 1) {
          // run interactive mode
@@ -366,7 +371,7 @@ public class lab3 {
             command = scanner.nextLine();
             if (command.trim().equals("q"))
                break;
-            executeCommand(command, memoryArr, pc, instrArr);
+            pc = executeCommand(command, memoryArr, pc, instrArr);
          }
       }
       else {
