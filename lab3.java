@@ -1,7 +1,9 @@
-// Luis Estevez
-// Vincent Viloria
-// CPE 315-07
-// Lab 3
+/* 
+ * Luis Estevez
+ * Vincent Viloria
+ * CPE 315-07
+ * Lab 3
+*/
 
 import java.io.File;
 import java.io.FileWriter;
@@ -12,6 +14,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.*;
+import java.io.PrintStream;
 
 public class lab3 {
 
@@ -20,8 +23,6 @@ public class lab3 {
    static final Map<String, String> J_INSTRS = new HashMap<String, String>();
    static final HashMap<String, Integer> REGISTERS = new LinkedHashMap<String, Integer>();
 
-   // TODO: separate everything into different files, getting kinda cluttered
-
    public static int executeCommand(String command, int[] memoryArr, int pc, List<Instruction> instrArr) {
       char firstChar = command.charAt(0);
       String[] splitStr = command.split(" ");
@@ -29,7 +30,7 @@ public class lab3 {
       if (firstChar == 'h') {
          System.out.println("h = show help");
          System.out.println("d = dump register state");
-         System.out.println("s = single step through the program (i.e. execute 1 instruction and stop");
+         System.out.println("s = single step through the program (i.e. execute 1 instruction and stop)");
          System.out.println("s num = step through num instructions of the program");
          System.out.println("r = run until the program ends");
          System.out.println("m num1 num2 = display data memory from location num1 to num2");
@@ -70,6 +71,7 @@ public class lab3 {
             int start = Integer.parseInt(splitStr[1]);
             int end = Integer.parseInt(splitStr[2]);
 
+            // TODO: double check w prof if script will have invalid commands
             if(start > end)
                System.out.println("\nFirst Number can't be Greater than the Second Number\n");
 
@@ -99,6 +101,26 @@ public class lab3 {
          System.out.println("Invalid command");
       }
       return pc;
+   }
+
+   public static void runScriptMode(String scriptName, int[] memoryArr, List<Instruction> instrArr) {
+      int pc = 0;
+      try {
+         File scriptFile = new File(scriptName);
+         Scanner scanner = new Scanner(scriptFile);
+         while (scanner.hasNextLine()) {
+            String command = scanner.nextLine().trim();
+            System.out.println("mips> " + command);
+            if (command.charAt(0) == 'q') {
+               break;
+            }
+            pc = executeCommand(command, memoryArr, pc, instrArr);
+         }
+      }
+      catch (FileNotFoundException e) {
+         System.out.println("File not found");
+         e.printStackTrace();
+      }
    }
 
    public static int executeInstruction(Instruction instr, int PC, int[] MEMORY){
@@ -172,7 +194,6 @@ public class lab3 {
 
       for (Map.Entry<String, Integer> entry : REGISTERS.entrySet()) {
          System.out.printf(format, "$", entry.getKey() + " = " + entry.getValue());
-         //System.out.print("$" + entry.getKey() + " = " + entry.getValue() + "\t");
          if(counter == 3){
             System.out.println();
             counter = 0;
@@ -185,7 +206,6 @@ public class lab3 {
    }
 
    public static Instruction getInstruction(String line, HashMap<String, Integer> labels, int lineNumber) {
-      // assumes line DOES NOT start with a label
       Instruction instr;
       String[] splitStr = line.split("[,$ ]+");
       String op = splitStr[0].trim();
@@ -363,21 +383,33 @@ public class lab3 {
       return instrArr;
    }
 
+   public static void setOutputFile(String filename) {
+      // Use this in the beginning of main to set stdout to [filename]
+      try {
+         PrintStream fileOut = new PrintStream(filename);
+         System.setOut(fileOut);
+      }
+      catch (FileNotFoundException e) {
+         System.out.println("Oh no my code");
+         e.printStackTrace();
+      }
+   }
+
    public static void main(String[] args) {
       int[] memoryArr = new int[8192];
       int pc = 0;
       List<Instruction> instrArr;
+      if (args.length == 0) {
+         System.out.println("usage: java lab3 [asm_file] [script]");
+         return;
+      }
+      String command;
       String filename = args[0];
       Scanner scanner = new Scanner(System.in);
-      String command;
-
       File inputFile = new File(filename);
       HashMap<String, Integer> labels = getLabels(inputFile);
       instrArr = createInstructions(inputFile, labels);
-      //System.out.println(instrArr);
-      // args: filename script
       if (args.length == 1) {
-         // run interactive mode
          while (true) {
             System.out.print("mips> ");
             command = scanner.nextLine();
@@ -388,7 +420,7 @@ public class lab3 {
       }
       else {
          // run script mode
-         System.out.println("Running script mode");
+         runScriptMode(args[1], memoryArr, instrArr);
       }
    }
 
