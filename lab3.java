@@ -24,6 +24,8 @@ public class lab3 {
 
    public static int executeCommand(String command, int[] memoryArr, int pc, List<Instruction> instrArr) {
       char firstChar = command.charAt(0);
+      String[] splitStr = command.split(" ");
+
       if (firstChar == 'h') {
          System.out.println("h = show help");
          System.out.println("d = dump register state");
@@ -39,21 +41,31 @@ public class lab3 {
          System.out.println("pc = " + Integer.toString(pc));
          registersToString();
       }
-      else if (firstChar == 's') {
-         System.out.println("command: s");
+      else if (firstChar == 's' && splitStr.length == 2) {
+         int counter = 0;
+         for (pc = pc; pc < instrArr.size(); pc++) {
+            pc = executeInstruction(instrArr.get(pc), pc, memoryArr);
+            if(counter == Integer.parseInt(splitStr[1])){
+               counter = 0;
+               break;
+            }
+            counter++;
+         }
+         System.out.println("\t\t" + splitStr[1] + " instruction(s) executed");
       }
-      else if (command.equals("s num")) {
-         System.out.println("command: s");
+      else if (firstChar == 's') {
+         pc = executeInstruction(instrArr.get(pc), pc, memoryArr);
+         pc++;
+         System.out.println("\t\t1 instruction(s) executed");
       }
       else if (firstChar == 'r') {
-         for (pc = 0; pc < instrArr.size(); pc++) {
-            System.out.println(instrArr.get(pc));
+         for (pc = pc; pc < instrArr.size(); pc++) {
+            //System.out.println(instrArr.get(pc));
             pc = executeInstruction(instrArr.get(pc), pc, memoryArr);
          }
       }
 
       else if (firstChar == 'm') {
-         String[] splitStr = command.split(" ");
          if(splitStr.length == 3){
             int start = Integer.parseInt(splitStr[1]);
             int end = Integer.parseInt(splitStr[2]);
@@ -156,7 +168,7 @@ public class lab3 {
 
    public static void registersToString(){
       int counter = 0;
-      String format = "%s%-10s";
+      String format = "%s%-15s";
 
       for (Map.Entry<String, Integer> entry : REGISTERS.entrySet()) {
          System.out.printf(format, "$", entry.getKey() + " = " + entry.getValue());
