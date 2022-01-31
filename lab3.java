@@ -103,6 +103,8 @@ public class lab3 {
          Scanner scanner = new Scanner(scriptFile);
          while (scanner.hasNextLine()) {
             String command = scanner.nextLine().trim();
+            if (command.length() == 0)
+               continue;
             System.out.println("mips> " + command);
             if (command.charAt(0) == 'q') {
                break;
