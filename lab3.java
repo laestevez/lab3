@@ -58,7 +58,6 @@ public class lab3 {
       }
       else if (firstChar == 'r') {
          for (pc = pc; pc < instrArr.size(); pc++) {
-            //System.out.println(instrArr.get(pc));
             pc = executeInstruction(instrArr.get(pc), pc, memoryArr);
          }
       }
@@ -68,11 +67,8 @@ public class lab3 {
             int start = Integer.parseInt(splitStr[1]);
             int end = Integer.parseInt(splitStr[2]);
 
-            // TODO: double check w prof if script will have invalid commands
-            if(start > end)
-               System.out.println("\nFirst Number can't be Greater than the Second Number\n");
 
-            else if(start < 8192 && end < 8192){
+            if(start < 8192 && end < 8192){
                System.out.println();
                for(int i = start; i <= end; i++){
                   System.out.println("[" + i + "] = " + memoryArr[i]);
@@ -198,7 +194,6 @@ public class lab3 {
          }  
          counter++;
       }
-      
       System.out.println("\n");
    }
 
@@ -210,13 +205,12 @@ public class lab3 {
          System.setOut(fileOut);
       }
       catch (FileNotFoundException e) {
-         System.out.println("Oh no my code");
+         System.out.println("Error when creating output file");
          e.printStackTrace();
       }
    }
 
    public static void main(String[] args) {
-      // setOutputFile("output.out");
       Parser parser = new Parser();
       int[] memoryArr = new int[8192];
       int pc = 0;
@@ -241,7 +235,6 @@ public class lab3 {
          }
       }
       else {
-         // run script mode
          runScriptMode(args[1], memoryArr, instrArr);
       }
    }

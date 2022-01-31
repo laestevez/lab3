@@ -96,7 +96,6 @@ public class Parser {
       return labels;
    }
    public static Instruction generateRInstruction(String[] instr) {
-      // needs to return instruction class, but for now string
       String rd=" 00000", rs=" 00000", rt=" 00000",
          shamt=" 00000", funct=" 000000";
       String oper = instr[0].trim(); 
@@ -167,12 +166,10 @@ public class Parser {
          while (scanner.hasNextLine()) {
             String lineStr = removeComments(scanner.nextLine().trim());
             String[] lineArr = lineStr.split(":");
-            // line has a label followed by instr
             if (lineArr.length == 2) {
                instr = getInstruction(lineArr[1].trim(), labels, line);
                line++;
             }
-            // line does not have a label and is not whitespace or empty str
             else if (lineArr.length == 1 && lineStr.indexOf(":") == -1 &&
                lineStr.length() > 0) {
                instr = getInstruction(lineStr.trim(),labels, line);
