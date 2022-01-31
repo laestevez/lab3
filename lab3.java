@@ -18,9 +18,6 @@ import java.io.PrintStream;
 
 public class lab3 {
 
-   static final Map<String, String[]> R_INSTRS = new HashMap<String, String[]>();
-   static final Map<String, String> I_INSTRS = new HashMap<String, String>();
-   static final Map<String, String> J_INSTRS = new HashMap<String, String>();
    static final HashMap<String, Integer> REGISTERS = new LinkedHashMap<String, Integer>();
 
    public static int executeCommand(String command, int[] memoryArr, int pc, List<Instruction> instrArr) {
@@ -61,7 +58,6 @@ public class lab3 {
       }
       else if (firstChar == 'r') {
          for (pc = pc; pc < instrArr.size(); pc++) {
-            //System.out.println(instrArr.get(pc));
             pc = executeInstruction(instrArr.get(pc), pc, memoryArr);
          }
       }
@@ -71,11 +67,8 @@ public class lab3 {
             int start = Integer.parseInt(splitStr[1]);
             int end = Integer.parseInt(splitStr[2]);
 
-            // TODO: double check w prof if script will have invalid commands
-            if(start > end)
-               System.out.println("\nFirst Number can't be Greater than the Second Number\n");
 
-            else if(start < 8192 && end < 8192){
+            if(start < 8192 && end < 8192){
                System.out.println();
                for(int i = start; i <= end; i++){
                   System.out.println("[" + i + "] = " + memoryArr[i]);
@@ -201,187 +194,9 @@ public class lab3 {
          }  
          counter++;
       }
-      
       System.out.println("\n");
    }
 
-   public static Instruction getInstruction(String line, HashMap<String, Integer> labels, int lineNumber) {
-      Instruction instr;
-      String[] splitStr = line.split("[,$ ]+");
-      String op = splitStr[0].trim();
-
-      if (R_INSTRS.containsKey(op)) {
-         instr = generateRInstruction(splitStr);
-      }
-
-      else if (I_INSTRS.containsKey(op)) {
-         instr = generateIInstruction(splitStr, labels, lineNumber);
-      }
-
-      else if (J_INSTRS.containsKey(op)) {
-         instr = generateJInstruction(splitStr, labels);
-      }
-
-      else {
-         return null;
-      }
-      return instr;
-   }
-
-   public static String addLeadingZeros(String binString, int numBits) {
-      while (binString.length() < numBits) {
-         binString = "0" + binString;
-      }
-      return binString;
-   }
-
-   public static String getShamt(String decimalStr) {
-      int shamtInt = Integer.parseInt(decimalStr);
-      String shamt = Integer.toBinaryString(shamtInt);
-      shamt = addLeadingZeros(shamt, 5);
-      return(" " + shamt);
-   }
-
-   public static Instruction generateRInstruction(String[] instr) {
-      // needs to return instruction class, but for now string
-      String rd=" 00000", rs=" 00000", rt=" 00000",
-         shamt=" 00000", funct=" 000000";
-      String oper = instr[0].trim(); 
-      String opcode = R_INSTRS.get(oper)[0];
-
-      if (oper.equals("sll")) {
-         shamt = getShamt(instr[3]);
-         rt = instr[2];
-         rd = instr[1];
-         funct = R_INSTRS.get(oper)[1];
-      }
-      else if (oper.equals("jr")) {
-         rs = instr[1];
-         funct = R_INSTRS.get(oper)[1];
-      }
-      else {
-         rs = instr[2];
-         rt = instr[3];
-         rd = instr[1];
-         funct = R_INSTRS.get(oper)[1];
-      }
-      return(new Instruction(oper, rs, rt, rd, shamt, funct, "", ""));
-   }
-
-   public static Instruction  generateIInstruction(String[] instr, HashMap<String, Integer> labels, int lineNumber) {
-      String rs="", rt="", imm ="", immWithPadding="";
-      String op = instr[0].trim(); 
-      String opcode = I_INSTRS.get(op);
-
-      if (op.equals("bne") || op.equals("beq")){
-         String label = instr[3].replaceAll("\\s+", "");
-         int branchNum = labels.get(label) - (lineNumber+1);
-
-         rs = instr[1].replaceAll("[^a-z0-9]","");
-         rt = instr[2].replaceAll("[^a-z0-9]","");
-         return(new Instruction(op, rs, rt, "", "", "", "", String.valueOf(branchNum)));
-      }
-
-      else if(op.equals("lw") || op.equals("sw")){
-         String value = instr[2].replaceAll("[^0-9]","");
-         rt = instr[3].replaceAll("[^a-z0-9]","");
-         rs = instr[1].replaceAll("[^a-z0-9]","");
-         return(new Instruction(op, rs, rt, "", "", "", value, ""));
-      }
-
-      else{
-         rt = instr[2].replaceAll("[^a-z0-9]","");
-      }
-
-      rs = instr[1].replaceAll("[^a-z0-9]","");
-      return(new Instruction(op, rs, rt, "", "", "", instr[3], ""));
-   }
-
-   public static  Instruction generateJInstruction(String[] instr, HashMap<String, Integer> labels) {
-      String addr ="", addrWithPadding = "";
-      String label = instr[1].replaceAll("\\s+", "");
-      String opcode = instr[0];
-   
-      return new Instruction(opcode, "", "", "", "", "", "", Integer.toString(labels.get(label)));
-   }
-
-   public static String removeComments(String line) {
-      if (line.indexOf("#") > -1)
-         return line.substring(0, line.indexOf("#"));
-      return line;
-   }
-
-   public static void labelFinder(String line, HashMap<String, Integer> labels, int lineNumber){
-      String[] arr = line.split(":");
-      if(line.indexOf(":") != -1) {
-        labels.put(arr[0], lineNumber);
-      }
-   }
-
-   public static HashMap<String, Integer> getLabels(File inputFile) {
-      HashMap<String, Integer> labels = new HashMap<String, Integer>();
-      int line = 0;
-      try {
-         Scanner scanner = new Scanner(inputFile); 
-         while (scanner.hasNextLine()) {
-            String lineStr = scanner.nextLine(); // each line is a string
-            labelFinder(lineStr, labels, line);
-
-            String trimmedLine = lineStr.replaceFirst("^\\s+", "");
-            if((trimmedLine.isEmpty()) || (trimmedLine.startsWith("#"))){
-              continue;
-            }
-
-            line++;
-
-         }
-         scanner.close();
-      }
-      catch (FileNotFoundException e) {
-         System.out.println("Oh no my code");
-         e.printStackTrace();
-      }
-      return labels;
-   }
-
-   public static  List<Instruction> createInstructions(File inputFile, HashMap<String, Integer> labels) {
-      List<Instruction> instrArr = new ArrayList<Instruction>();
-      Instruction instr;
-      int line = 0;
-      try {
-         Scanner scanner = new Scanner(inputFile);
-         while (scanner.hasNextLine()) {
-            String lineStr = removeComments(scanner.nextLine().trim());
-            String[] lineArr = lineStr.split(":");
-            // line has a label followed by instr
-            if (lineArr.length == 2) {
-               instr = getInstruction(lineArr[1].trim(), labels, line);
-               line++;
-            }
-            // line does not have a label and is not whitespace or empty str
-            else if (lineArr.length == 1 && lineStr.indexOf(":") == -1 &&
-               lineStr.length() > 0) {
-               instr = getInstruction(lineStr.trim(),labels, line);
-               line++;
-            }
-            else { continue; }
-
-            if(instr == null){
-               String[] splitStr = lineStr.split("[,$ ]+");
-               String op = splitStr[0].trim();
-               instrArr.add(null);
-               return instrArr;
-            }
-            instrArr.add(instr);
-         }
-         scanner.close();
-      }
-      catch (FileNotFoundException e) {
-         System.out.println("Oh no my code");
-         e.printStackTrace();
-      }
-      return instrArr;
-   }
 
    public static void setOutputFile(String filename) {
       // Use this in the beginning of main to set stdout to [filename]
@@ -390,12 +205,13 @@ public class lab3 {
          System.setOut(fileOut);
       }
       catch (FileNotFoundException e) {
-         System.out.println("Oh no my code");
+         System.out.println("Error when creating output file");
          e.printStackTrace();
       }
    }
 
    public static void main(String[] args) {
+      Parser parser = new Parser();
       int[] memoryArr = new int[8192];
       int pc = 0;
       List<Instruction> instrArr;
@@ -407,8 +223,8 @@ public class lab3 {
       String filename = args[0];
       Scanner scanner = new Scanner(System.in);
       File inputFile = new File(filename);
-      HashMap<String, Integer> labels = getLabels(inputFile);
-      instrArr = createInstructions(inputFile, labels);
+      HashMap<String, Integer> labels = parser.getLabels(inputFile);
+      instrArr = parser.createInstructions(inputFile, labels);
       if (args.length == 1) {
          while (true) {
             System.out.print("mips> ");
@@ -419,31 +235,11 @@ public class lab3 {
          }
       }
       else {
-         // run script mode
          runScriptMode(args[1], memoryArr, instrArr);
       }
    }
 
    static {
-      // instructions are stored as key=operation, val=[opcode, funct]
-    R_INSTRS.put("add", new String[] {"000000", " 100000"});
-    R_INSTRS.put("or", new String[]  {"000000", " 100101"});
-    R_INSTRS.put("and", new String[] {"000000", " 100100"});
-    R_INSTRS.put("sll", new String[] {"000000", " 000000"});
-    R_INSTRS.put("sub", new String[] {"000000", " 100010"});
-    R_INSTRS.put("slt", new String[] {"000000", " 101010"});
-    R_INSTRS.put("jr", new String[]  {"000000", " 001000"});
-    
-    I_INSTRS.put("addi", "001000");
-    I_INSTRS.put("beq", "000100");
-    I_INSTRS.put("bne", "000101");
-    I_INSTRS.put("lw", "100011");  
-    I_INSTRS.put("sw", "101011");
-
-    J_INSTRS.put("j", "000010");
-    J_INSTRS.put("jal", "000011");
- 
-    //REGISTERS.put("zero", 0);
     REGISTERS.put("0",  0);
     REGISTERS.put("v0", 0);
     REGISTERS.put("v1", 0);
