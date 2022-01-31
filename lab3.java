@@ -106,7 +106,7 @@ public class lab3 {
             if (command.length() == 0)
                continue;
             System.out.println("mips> " + command);
-            if (command.charAt(0) == 'q') {
+            if (command.equals("q")) {
                break;
             }
             pc = executeCommand(command, memoryArr, pc, instrArr);
@@ -231,6 +231,8 @@ public class lab3 {
          while (true) {
             System.out.print("mips> ");
             command = scanner.nextLine();
+            if (command.length() == 0)
+               continue;
             if (command.trim().equals("q"))
                break;
             pc = executeCommand(command, memoryArr, pc, instrArr);
